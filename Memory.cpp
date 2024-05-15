@@ -32,7 +32,7 @@ int main() {
 
     char fillValue = 'A'; // Значение для заполнения памяти
 
-    size_t totalMemoryBytes = totalMemoryMB * 1024 * 1024; // Перевод общего объема памяти из МБ в байты
+    size_t totalMemoryBytes = totalMemoryMB * 1024 * 1024; 
 
     std::cout << "Writing data to memory..." << std::endl;
     memoryAccess(totalMemoryBytes, delayPages, fillValue);
