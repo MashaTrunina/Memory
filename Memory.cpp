@@ -1,21 +1,27 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include <cstring>
 
-constexpr size_t PAGE_SIZE = 4 * 1024; // Размер страницы 
+constexpr size_t PAGE_SIZE = 4 * 1024; 
 
-// Функция для доступа к памяти с указанным шагом и заполнением
-void memoryAccess(size_t totalMemoryBytes, unsigned int delayPages, char fillValue) {
+void memoryAccess(size_t totalMemoryBytes, unsigned int delayPages, char fillValue, bool write) {
     for (size_t offset = 0; offset < totalMemoryBytes; offset += PAGE_SIZE) {
-        char* memory = new char[PAGE_SIZE]; 
+        char* memory = new char[PAGE_SIZE];
 
-     
-        std::memset(memory, fillValue, PAGE_SIZE);
+        if (write) {
+            for (size_t i = 0; i < PAGE_SIZE; ++i) {
+                memory[i] = fillValue;
+            }
+        }
+        else {
+            volatile char readValue;
+            for (size_t i = 0; i < PAGE_SIZE; ++i) {
+                readValue = memory[i];
+            }
+        }
 
-        // Задержка через определенное количество страниц
         if (offset % (delayPages * PAGE_SIZE) == 0) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100)); 
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
     }
@@ -30,12 +36,18 @@ int main() {
     std::cout << "Enter delay pages (each page is 4 KB): ";
     std::cin >> delayPages;
 
-    char fillValue = 'A'; // Значение для заполнения памяти
+    char fillValue = 'A';
 
-    size_t totalMemoryBytes = totalMemoryMB * 1024 * 1024; 
+    char accessType;
+    std::cout << "Enter access type (r for read or w for write): ";
+    std::cin >> accessType;
 
-    std::cout << "Writing data to memory..." << std::endl;
-    memoryAccess(totalMemoryBytes, delayPages, fillValue);
+    int write = (accessType == 'w');
+
+    size_t totalMemoryBytes = totalMemoryMB * 1024 * 1024;
+
+    std::cout << (write ? "Writing" : "Reading") << " data to/from memory..." << std::endl;
+    memoryAccess(totalMemoryBytes, delayPages, fillValue, write);
 
     return 0;
 }
